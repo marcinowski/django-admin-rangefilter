@@ -28,6 +28,7 @@ class DateRangeFilter(admin.filters.FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
         self.lookup_kwarg_gte = '{}__gte'.format(field_path)
         self.lookup_kwarg_lte = '{}__lte'.format(field_path)
+        self.request = request
 
         super(DateRangeFilter, self).__init__(field, request, params, model, model_admin, field_path)
 
@@ -126,8 +127,14 @@ class DateRangeFilter(admin.filters.FieldListFilter):
                 )),
         ))
 
-    @staticmethod
-    def _get_media():
+    def _get_media(self):
+        """
+        https://github.com/silentsokolov/django-admin-rangefilter/issues/9
+        """
+        media = getattr(self.request, 'rangefilter_media_included', False)
+        if media:  # early exit: media has already been set
+            return forms.Media()
+        setattr(self.request, 'rangefilter_media_included', True)
         js = [
             'calendar.js',
             'admin/DateTimeShortcuts.js',
