@@ -4,12 +4,11 @@ from __future__ import unicode_literals
 
 import django
 
-from django.conf import settings, global_settings
+from django.conf import settings
 from django.core.management import call_command
 
 
 settings.configure(
-    MIDDLEWARE_CLASSES=global_settings.MIDDLEWARE_CLASSES,
     INSTALLED_APPS=(
         'django.contrib.auth',
         'django.contrib.contenttypes',
@@ -22,7 +21,8 @@ settings.configure(
         'default': {'ENGINE': 'django.db.backends.sqlite3'}
     },
     TEST_RUNNER='django.test.runner.DiscoverRunner',
-    USE_TZ=True
+    USE_TZ=True,
+    TIME_ZONE='UTC',
 )
 
 django.setup()
