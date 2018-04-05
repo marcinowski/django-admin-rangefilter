@@ -29,6 +29,15 @@ class AdminSplitDateTime(BaseAdminSplitDateTime):
                            rendered_widgets[1])
 
 
+class DataRangeFilterWidget(AdminDateWidget):
+    @property
+    def media(self):
+        return forms.Media(
+            js=[],
+            css={'all': []}
+        )
+
+
 class DateRangeFilter(admin.filters.FieldListFilter):
     def __init__(self, field, request, params, model, model_admin, field_path):
         self.lookup_kwarg_gte = '{}__gte'.format(field_path)
@@ -112,45 +121,23 @@ class DateRangeFilter(admin.filters.FieldListFilter):
             (forms.BaseForm,),
             {'base_fields': fields}
         )
-        form_class.media = self._get_media()
-
         return form_class
 
     def _get_form_fields(self):
         return OrderedDict((
                 (self.lookup_kwarg_gte, forms.DateField(
                     label='',
-                    widget=AdminDateWidget(attrs={'placeholder': _('From date')}),
+                    widget=DataRangeFilterWidget(attrs={'placeholder': _('From date')}),
                     localize=True,
                     required=False
                 )),
                 (self.lookup_kwarg_lte, forms.DateField(
                     label='',
-                    widget=AdminDateWidget(attrs={'placeholder': _('To date')}),
+                    widget=DataRangeFilterWidget(attrs={'placeholder': _('To date')}),
                     localize=True,
                     required=False
                 )),
         ))
-
-    def _get_media(self):
-        """
-        https://github.com/silentsokolov/django-admin-rangefilter/issues/9
-        """
-        media = getattr(self.request, 'rangefilter_media_included', False)
-        if media:  # early exit: media has already been set
-            return forms.Media()
-        setattr(self.request, 'rangefilter_media_included', True)
-        js = [
-            'calendar.js',
-            'admin/DateTimeShortcuts.js',
-        ]
-        css = [
-            'widgets.css',
-        ]
-        return forms.Media(
-            js=['admin/js/%s' % url for url in js],
-            css={'all': ['admin/css/%s' % path for path in css]}
-        )
 
 
 class DateTimeRangeFilter(DateRangeFilter):
